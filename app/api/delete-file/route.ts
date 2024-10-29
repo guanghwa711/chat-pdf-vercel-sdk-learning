@@ -4,7 +4,7 @@ import path from "path";
 import { exec } from "child_process";
 import { STORAGE_CACHE_DIR, STORAGE_DIR } from "../chat/engine/constants.mjs";
 
-const FILES_JSON_PATH = path.join(STORAGE_DIR, 'files.json');
+const FILES_JSON_PATH = './public/files.json';
 
 // Function to initialize the files.json if it doesn't exist or is empty
 function initializeFilesJson() {

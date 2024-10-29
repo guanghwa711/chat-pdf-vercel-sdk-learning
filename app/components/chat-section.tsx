@@ -29,12 +29,13 @@ export default function ChatSection() {
   useEffect(() => {
     async function fetchFiles() {
       try {
-        const response = await fetch("/api/files");
+        const response = await fetch("/files.json");
         if (!response.ok) {
           throw new Error("Failed to fetch files");
         }
+        
         const data = await response.json();
-        setUploadedFiles(data.files);
+        setUploadedFiles(data);
       } catch (error) {
         console.error("Error fetching files:", error);
       } finally {
@@ -152,12 +153,12 @@ export default function ChatSection() {
               <div className="flex justify-center items-center h-full">
                 <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
               </div>
-            ) : uploadedFiles.length === 0 ? (
+            ) : uploadedFiles?.length === 0 ? (
               <div className="text-sm text-gray-500 py-2 text-center">
                 No files
               </div>
             ) : (
-              uploadedFiles.map((fileName, index) => (
+              uploadedFiles?.map((fileName, index) => (
                 <div key={index} className="flex justify-between items-center py-2">
                   <span className="text-sm text-gray-700">{fileName}</span>
                   <button
