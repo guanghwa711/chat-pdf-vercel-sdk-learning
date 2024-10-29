@@ -5,9 +5,8 @@ import path from "path";
 export async function GET() {
   try {
     const dataDir = path.join(process.cwd(), "data");
-    console.log(dataDir, "dataDir");
     if (!fs.existsSync(dataDir)) {
-      return NextResponse.json({ files: [] });
+      return NextResponse.json({ files: [], dataDir });
     }
 
     const files = fs.readdirSync(dataDir).filter((file) => file.endsWith(".pdf"));
