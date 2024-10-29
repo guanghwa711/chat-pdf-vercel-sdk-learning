@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import path from "path";
-import { STORAGE_DIR } from "../chat/engine/constants.mjs";
 
-const FILES_JSON_PATH = path.join(STORAGE_DIR, 'files.json');
+const FILES_JSON_PATH = './public/files.json';
 
 export async function GET() {
   try {
