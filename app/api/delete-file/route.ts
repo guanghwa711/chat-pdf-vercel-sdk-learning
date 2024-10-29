@@ -6,7 +6,7 @@ import { exec } from "child_process";
 export async function DELETE(request: NextRequest) {
     try {
         const { filename } = await request.json();
-        const dataDir = path.join(process.cwd(), "data");
+        const dataDir = "./data";
         const cacheDir = path.join(process.cwd(), "cache");
         const filePath = path.join(dataDir, filename);
 
