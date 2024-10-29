@@ -5,6 +5,7 @@ import path from "path";
 export async function GET() {
   try {
     const dataDir = path.join(process.cwd(), "data");
+    console.log(dataDir, "dataDir");
     if (!fs.existsSync(dataDir)) {
       return NextResponse.json({ files: [] });
     }
