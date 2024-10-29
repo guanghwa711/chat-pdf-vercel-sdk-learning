@@ -23,7 +23,7 @@ async function getDataSource(llm: LLM) {
   ).length;
   if (numberOfDocs === 0) {
     throw new Error(
-      `StorageContext is empty - call 'npm run generate' to generate the storage first`,
+      `Error: StorageContext is empty. Please ensure that files are uploaded and try analyzing again.`
     );
   }
   return await VectorStoreIndex.init({

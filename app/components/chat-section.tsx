@@ -6,6 +6,8 @@ import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
 import FileUploader from "./ui/file-uploader";
 import { Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
 
 export default function ChatSection() {
   const {
@@ -16,10 +18,13 @@ export default function ChatSection() {
     handleInputChange,
     reload,
     stop,
+    error
   } = useChat({ api: "/api/chat" });
 
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const [loadingFiles, setLoadingFiles] = useState<boolean>(true);
+  const [loadingAnalyze, setLoadingAnalyze] = useState<boolean>(false);
+  const [loadingDeleteCache, setLoadingDeleteCache] = useState<boolean>(false);
 
   useEffect(() => {
     async function fetchFiles() {
@@ -57,11 +62,74 @@ export default function ChatSection() {
       setUploadedFiles((prevFiles) => [...prevFiles, file.name]);
       console.log("File uploaded successfully");
     } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error uploading file:", error.message);
-      } else {
-        console.error("An unknown error occurred during file upload");
+      console.error("Error uploading file:", error);
+    }
+  }
+
+  async function handleFileDelete(fileName: string) {
+    setLoadingFiles(true)
+    try {
+      const response = await fetch("/api/delete-file", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ filename: fileName }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete file");
       }
+
+      setUploadedFiles((prevFiles) => {
+        const updatedFiles = prevFiles.filter((file) => file !== fileName);
+
+        return updatedFiles;
+      });
+
+      console.log("File deleted successfully");
+    } catch (error) {
+      console.error("Error deleting file:", error);
+    } finally {
+      setLoadingFiles(false);
+    }
+  }
+
+  async function handleDeleteCache() {
+    setLoadingDeleteCache(true);
+    try {
+      const response = await fetch("/api/delete-cache", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete cache");
+      }
+
+      console.log("Cache deleted successfully");
+    } catch (error) {
+      console.error("Error deleting cache:", error);
+    } finally {
+      setLoadingDeleteCache(false);
+    }
+  }
+
+  async function handleAnalyze() {
+    setLoadingAnalyze(true);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to analyze");
+      }
+
+      console.log("Analysis completed successfully");
+    } catch (error) {
+      console.error("Error analyzing:", error);
+    } finally {
+      setLoadingAnalyze(false);
     }
   }
 
@@ -79,7 +147,7 @@ export default function ChatSection() {
               }}
             />
           </div>
-          <div className="mt-4 h-[50vh] overflow-y-auto divide-y divide-gray-300">
+          <div className="mt-4 h-[calc(100%-200px)] overflow-y-auto divide-y divide-gray-300">
             {loadingFiles ? (
               <div className="flex justify-center items-center h-full">
                 <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
@@ -90,20 +158,45 @@ export default function ChatSection() {
               </div>
             ) : (
               uploadedFiles.map((fileName, index) => (
-                <div key={index} className="text-sm text-gray-700 py-2">
-                  {fileName}
+                <div key={index} className="flex justify-between items-center py-2">
+                  <span className="text-sm text-gray-700">{fileName}</span>
+                  <button
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleFileDelete(fileName)}
+                    aria-label={`Delete ${fileName}`}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
               ))
             )}
           </div>
+          <div className="mt-4">
+            <Button onClick={handleDeleteCache} className="w-full mb-2" disabled={loadingDeleteCache}>
+              {loadingDeleteCache ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                "Delete Vector Cache"
+              )}
+            </Button>
+            <Button onClick={handleAnalyze} className="w-full" disabled={loadingAnalyze}>
+              {loadingAnalyze ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                "Analyze"
+              )}
+            </Button>
+          </div>
         </div>
       </div>
-      <div className="w-4/5 space-y-4">
+      <div className="rounded-xl bg-white w-4/5 space-y-4">
+        {error && <p className="text-red-500 border border-red-500 m-4 rounded-xl p-4 bg-red-50">{error.message}</p>}
         <ChatMessages
           messages={messages}
           isLoading={isLoading}
           reload={reload}
           stop={stop}
+          error={error}
         />
         <ChatInput
           input={input}

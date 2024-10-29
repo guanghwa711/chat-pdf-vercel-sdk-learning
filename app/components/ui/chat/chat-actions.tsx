@@ -4,7 +4,7 @@ import { Button } from "../button";
 import { ChatHandler } from "./chat.interface";
 
 export default function ChatActions(
-  props: Pick<ChatHandler, "stop" | "reload"> & {
+  props: Pick<ChatHandler, "stop" | "reload" | "error"> & {
     showReload?: boolean;
     showStop?: boolean;
   },
@@ -20,7 +20,7 @@ export default function ChatActions(
       {props.showReload && (
         <Button variant="outline" size="sm" onClick={props.reload}>
           <RefreshCw className="mr-2 h-4 w-4" />
-          Regenerate
+          {!props.error ? "Regenerate" : "Reload"}
         </Button>
       )}
     </div>

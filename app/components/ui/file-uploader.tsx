@@ -89,7 +89,7 @@ export default function FileUploader({
       <Button
         asChild
         variant="default"
-        className={cn("cursor-pointer", uploading && "opacity-50")}
+        className={cn("cursor-pointer w-full", uploading && "opacity-50")}
       >
         <label htmlFor={inputId}>
           <span className="flex items-center">
