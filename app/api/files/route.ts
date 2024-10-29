@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
+import { STORAGE_DIR } from "../chat/engine/constants.mjs";
 
 export async function GET() {
   try {
-    const dataDir = "./data";
-    if (!fs.existsSync(dataDir)) {
-      return NextResponse.json({ files: [], dataDir });
+    if (!fs.existsSync(STORAGE_DIR)) {
+      return NextResponse.json({ files: [], STORAGE_DIR });
     }
 
-    const files = fs.readdirSync(dataDir).filter((file) => file.endsWith(".pdf"));
+    const files = fs.readdirSync(STORAGE_DIR).filter((file) => file.endsWith(".pdf"));
     return NextResponse.json({ files });
   } catch (error) {
     console.error("Error reading files:", error);

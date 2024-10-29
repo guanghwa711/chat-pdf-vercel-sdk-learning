@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { STORAGE_CACHE_DIR } from "../chat/engine/constants.mjs";
 
 export async function DELETE() {
   try {
-    const cacheDir = path.join(process.cwd(), "cache");
-
-    if (fs.existsSync(cacheDir)) {
-      const files = fs.readdirSync(cacheDir);
+    if (fs.existsSync(STORAGE_CACHE_DIR)) {
+      const files = fs.readdirSync(STORAGE_CACHE_DIR);
       files.forEach(file => {
-        const filePath = path.join(cacheDir, file);
+        const filePath = path.join(STORAGE_CACHE_DIR, file);
         fs.truncateSync(filePath, 0);
       });
     }

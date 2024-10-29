@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
+import { STORAGE_CACHE_DIR, STORAGE_DIR } from "../chat/engine/constants.mjs";
 
 export async function DELETE(request: NextRequest) {
     try {
         const { filename } = await request.json();
-        const dataDir = "./data";
-        const cacheDir = path.join(process.cwd(), "cache");
-        const filePath = path.join(dataDir, filename);
+        const filePath = path.join(STORAGE_DIR, filename);
 
         if (!fs.existsSync(filePath)) {
             return NextResponse.json({ error: "File not found" }, { status: 404 });
@@ -16,15 +15,15 @@ export async function DELETE(request: NextRequest) {
 
         fs.unlinkSync(filePath);
 
-        if (fs.existsSync(cacheDir)) {
-            const files = fs.readdirSync(cacheDir);
+        if (fs.existsSync(STORAGE_CACHE_DIR)) {
+            const files = fs.readdirSync(STORAGE_CACHE_DIR);
             files.forEach(file => {
-              const filePath = path.join(cacheDir, file);
+              const filePath = path.join(STORAGE_CACHE_DIR, file);
               fs.truncateSync(filePath, 0);
             });
         };
 
-        const remainingFiles = fs.readdirSync(dataDir).filter(file => file.endsWith(".pdf"));
+        const remainingFiles = fs.readdirSync(STORAGE_DIR).filter(file => file.endsWith(".pdf"));
 
         if (remainingFiles.length > 0) {
             await runGenerateCommand();

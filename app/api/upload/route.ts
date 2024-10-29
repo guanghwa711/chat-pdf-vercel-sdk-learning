@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
+import { STORAGE_CACHE_DIR, STORAGE_DIR } from "../chat/engine/constants.mjs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,23 +13,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const dataDir = path.join(process.cwd(), "data");
-    const cacheDir = path.join(process.cwd(), "cache");
-    const filePath = path.join(dataDir, file.name);
-
+    const filePath = path.join(STORAGE_DIR, file.name);
     // Ensure the data directory exists
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    if (!fs.existsSync(STORAGE_DIR)) {
+      fs.mkdirSync(STORAGE_DIR, { recursive: true });
     }
 
     // Save the file to the data directory
     const buffer = Buffer.from(await file.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
 
-    if (fs.existsSync(cacheDir)) {
-        const files = fs.readdirSync(cacheDir);
+    if (fs.existsSync(STORAGE_CACHE_DIR)) {
+        const files = fs.readdirSync(STORAGE_CACHE_DIR);
         files.forEach(file => {
-          const filePath = path.join(cacheDir, file);
+          const filePath = path.join(STORAGE_CACHE_DIR, file);
           fs.truncateSync(filePath, 0);
         });
     };
