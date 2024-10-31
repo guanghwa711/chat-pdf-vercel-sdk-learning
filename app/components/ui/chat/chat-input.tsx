@@ -28,7 +28,7 @@ export default function ChatInput(
       return;
     }
 
-    if (props.isEmailAssistant && localStorage.getItem("oauthToken") === "") {
+    if (props.isEmailAssistant && (localStorage.getItem("oauthToken") === "" || !localStorage.getItem("oauthToken"))) {
       alert("Please sign in to use the email assistant.");
       return;
     }
