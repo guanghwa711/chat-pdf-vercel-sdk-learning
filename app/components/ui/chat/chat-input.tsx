@@ -15,6 +15,7 @@ export default function ChatInput(
   > & {
     multiModal?: boolean;
     uploadedFiles: string[];
+    isEmailAssistant?: boolean;
   },
 ) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -22,8 +23,13 @@ export default function ChatInput(
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (props.uploadedFiles.length === 0) {
+    if (props.uploadedFiles.length === 0 && !props.isEmailAssistant) {
       alert("Please upload at least one file before submitting.");
+      return;
+    }
+
+    if (props.isEmailAssistant && localStorage.getItem("oauthToken") === "") {
+      alert("Please sign in to use the email assistant.");
       return;
     }
 
@@ -40,7 +46,7 @@ export default function ChatInput(
   return (
     <form
       onSubmit={onSubmit}
-      className="rounded-xl bg-white p-4 shadow-xl space-y-4"
+      className="rounded-xl bg-white p-4 shadow-md space-y-4"
     >
       <div className="flex w-full items-start justify-between gap-4 ">
         <Input
