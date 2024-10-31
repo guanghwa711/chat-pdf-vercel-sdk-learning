@@ -1,17 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
 import SignInButton from "./ui/SignInButton";
 
 export default function EmailAssistant() {
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  useEffect(() => {
-    const token = localStorage.getItem("oauthToken");
-    setAuthToken(token);
-  }, []);
-
   const {
     messages,
     input,
@@ -24,7 +17,7 @@ export default function EmailAssistant() {
   } = useChat({
     api: "/api/email-assistant",
     headers: {
-      "Authorization": `${authToken || ""}`,
+      "Authorization": `${localStorage.getItem("oauthToken") || ""}`,
     },
   });
 

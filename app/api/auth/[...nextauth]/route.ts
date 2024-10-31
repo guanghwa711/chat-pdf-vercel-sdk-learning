@@ -8,7 +8,9 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          scope: "openid profile email https://www.googleapis.com/auth/gmail.readonly", // Include openid, profile, and email scopes
+          scope: "openid profile email https://www.googleapis.com/auth/gmail.readonly",
+          prompt: "consent",
+          access_type: "offline"
         },
       },
     }),
