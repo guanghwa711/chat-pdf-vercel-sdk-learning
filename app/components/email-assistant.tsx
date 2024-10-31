@@ -1,10 +1,13 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useChat } from "ai/react";
 import { ChatInput, ChatMessages } from "./ui/chat";
 import SignInButton from "./ui/SignInButton";
 
 export default function EmailAssistant() {
+  const { data: session } = useSession(); // Get session data
+
   const {
     messages,
     input,
@@ -17,7 +20,8 @@ export default function EmailAssistant() {
   } = useChat({
     api: "/api/email-assistant",
     headers: {
-      "Authorization": `${localStorage.getItem("oauthToken") || ""}`,
+      // @ts-ignore
+      "Authorization": session?.accessToken ? `${session.accessToken}` : "", // Use the access token from session
     },
   });
 

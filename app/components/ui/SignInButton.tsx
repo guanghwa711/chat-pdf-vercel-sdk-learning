@@ -5,12 +5,14 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { Button } from "./button";
 
 const SignInButton = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     if (session) {
       // @ts-ignore
-      localStorage.setItem("oauthToken", session?.accessToken);
+      localStorage.setItem("oauthToken", session.accessToken || "");
+    } else {
+      localStorage.removeItem("oauthToken");
     }
   }, [session]);
 
@@ -19,9 +21,21 @@ const SignInButton = () => {
     signOut();
   };
 
+  const handleSignIn = async () => {
+    try {
+      await signIn("google");
+    } catch (error) {
+      console.error("Error signing in:", error);
+    }
+  };
+
   return (
     <div className="flex items-center gap-4">
-      {session ? (
+      {status === "loading" ? (
+        <Button disabled className="sign-in-button">
+          Loading...
+        </Button>
+      ) : session ? (
         <>
           <span className="user-name font-semibold">{session.user?.name}</span>
           <Button onClick={handleSignOut} className="sign-out-button">
@@ -29,7 +43,7 @@ const SignInButton = () => {
           </Button>
         </>
       ) : (
-        <Button onClick={() => signIn("google")} className="sign-in-button">
+        <Button onClick={handleSignIn} className="sign-in-button">
           Sign In with Google
         </Button>
       )}

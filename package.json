@@ -15,7 +15,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^1.2.1",
     "dotenv": "^16.3.1",
-    "gapi-script": "^1.2.0",
     "googleapis": "^144.0.0",
     "llamaindex": "0.0.38",
     "lucide-react": "^0.294.0",
