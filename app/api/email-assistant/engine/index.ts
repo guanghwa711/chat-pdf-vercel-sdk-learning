@@ -15,15 +15,18 @@ export async function createEmailAssistantChatEngine(llm: LLM, token: string) {
         text: "You have no unread emails at the moment."
     });
 
+    // const documents = unreadEmails.length > 0
+    //     ? unreadEmails.flatMap((email) => {
+    //         const bodyChunks = chunkText(email.body, MAX_LENGTH);
+    //         return bodyChunks.map((chunk) =>
+    //             new Document({ text: `From: ${email.from}\nSubject: ${email.subject}\nStatus: unread\nSnippet: ${email.snippet}\nBody: ${chunk}` })
+    //         );
+    //     }
+    //     )
+    //     : [noEmailsResponse];
+
     const documents = unreadEmails.length > 0
-        ? unreadEmails.flatMap((email) => {
-            const bodyChunks = chunkText(email.body, MAX_LENGTH);
-            return bodyChunks.map((chunk) =>
-                new Document({ text: `From: ${email.from}\nSubject: ${email.subject}\nStatus: unread\nSnippet: ${email.snippet}\nBody: ${chunk}` })
-            );
-        }
-        )
-        : [noEmailsResponse];
+        ? unreadEmails.map((email) => new Document({ text: `From: ${email.from}\nSubject: ${email.subject}\nStatus: unread\nSnippet: ${email.snippet}` })) : [noEmailsResponse];
 
     const index = await VectorStoreIndex.fromDocuments(documents);
 
@@ -33,7 +36,11 @@ export async function createEmailAssistantChatEngine(llm: LLM, token: string) {
 
     return new ContextChatEngine({
         chatModel: llm,
-        retriever
+        retriever,
+        contextSystemPrompt: (({ context }) => {
+            return `You are an email assistant. Say you are email assistant when the user asks hello or who you are. You are given a snippet of unread emails and your job is to answer the user's question based on the unread emails.
+            ${context}`;
+        })
     });
 }
 
@@ -46,6 +53,7 @@ async function fetchUnreadEmails(auth: any) {
         userId: 'me',
         q: 'is:unread',
         auth: authClient,
+        maxResults: 10,
     });
 
     const messages = gmailClient.data.messages || [];
@@ -61,7 +69,7 @@ async function fetchUnreadEmails(auth: any) {
                 userId: 'me',
                 id: message.id,
                 auth: authClient,
-                format: 'full',
+                // format: 'full',
             });
 
             const headers = msg.data.payload?.headers || [];
@@ -69,23 +77,23 @@ async function fetchUnreadEmails(auth: any) {
             const from = headers.find((header: any) => header.name === 'From')?.value || 'Unknown Sender';
             const snippet = msg.data.snippet || '';
 
-            let body = '';
-            if (msg.data.payload?.parts) {
-                msg.data.payload.parts.forEach((part: any) => {
-                    if (part.mimeType === 'text/plain') {
-                        body += part.body.data ? Buffer.from(part.body.data, 'base64').toString('utf-8') : '';
-                    }
-                });
-            } else {
-                body = msg.data.payload?.body?.data ? Buffer.from(msg.data.payload.body.data, 'base64').toString('utf-8') : '';
-            }
+            // let body = '';
+            // if (msg.data.payload?.parts) {
+            //     msg.data.payload.parts.forEach((part: any) => {
+            //         if (part.mimeType === 'text/plain') {
+            //             body += part.body.data ? Buffer.from(part.body.data, 'base64').toString('utf-8') : '';
+            //         }
+            //     });
+            // } else {
+            //     body = msg.data.payload?.body?.data ? Buffer.from(msg.data.payload.body.data, 'base64').toString('utf-8') : '';
+            // }
 
             return {
                 id: msg.data.id,
                 subject: subject,
                 from: from,
                 snippet: snippet,
-                body: body,
+                // body: body,
             };
         })
     );
