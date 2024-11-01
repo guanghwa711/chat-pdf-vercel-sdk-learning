@@ -19,7 +19,7 @@ export async function createEmailAssistantChatEngine(llm: LLM, token: string) {
         ? unreadEmails.flatMap((email) => {
             const bodyChunks = chunkText(email.body, MAX_LENGTH);
             return bodyChunks.map((chunk) =>
-                new Document({ text: `From: ${email.from}\nSubject: ${email.subject}\nSnippet: ${email.snippet}\nBody: ${chunk}` })
+                new Document({ text: `From: ${email.from}\nSubject: ${email.subject}\nStatus: unread\nSnippet: ${email.snippet}\nBody: ${chunk}` })
             );
         }
         )
